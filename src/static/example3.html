@@ -1,0 +1,65 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
+  </head>
+
+  <body>
+    <h1>Example 3</h1>
+    
+    <div>
+      <label>Post a message:</label>
+      <input autocomplete="off" type=text id="message">
+      <button id="submit">submit</button>
+    </div>
+
+    <table>
+      <tbody id='messages'></tbody>      
+    </table>
+    
+    <script>
+
+      document.getElementById('submit').addEventListener('click', add_message)
+      document.addEventListener('keyup', evt => {
+        if (evt.keyCode === 13) {
+          event.preventDefault();
+          add_message();
+        }
+      });
+      
+      function add_message() {
+        let message_text = document.getElementById('message');
+        if (message_text.value != "") {
+          fetch(`add_message?message=${message_text.value}`);
+          message_text.value = '';
+        }       
+      }
+      
+      function fetch_messages() {
+        fetch('messages').then(res => res.json()).then( json => {
+          //console.log(json);
+          document.getElementById('messages').innerHTML = '';
+          
+          json.forEach( msg => {
+            
+            let tr = document.createElement('tr');
+            let msgTd = document.createElement('td');
+            let timeTd = document.createElement('td');
+
+            msgTd.innerHTML = msg.message;
+            timeTd.innerHTML = msg.time;
+            tr.append(timeTd);    
+            tr.append(msgTd);
+            
+            document.getElementById('messages').append(tr);
+          });
+        });
+      }
+
+      fetch_messages();
+      setInterval(fetch_messages, 1000);
+    </script>
+  </body>
+</html>

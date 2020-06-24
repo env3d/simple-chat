@@ -1,0 +1,58 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
+  </head>
+
+  <body>
+    <h1>Example 5</h1>
+    
+    <div>
+      <label>Post a message:</label>
+      <input autocomplete="off" type=text id="message">
+      <button id="submit">submit</button>
+    </div>
+    
+    <table>
+      <tbody id='messages'></tbody>      
+    </table>
+
+    <script>
+      document.getElementById('submit').addEventListener('click', add_message)
+      document.addEventListener('keyup', evt => {
+        if (evt.keyCode === 13) {
+          event.preventDefault();
+          add_message();
+        }
+      });
+
+      let socket = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws");
+      
+      function add_message() {
+        let message_text = document.getElementById('message');
+        if (message_text.value != "") {
+          socket.send(message_text.value);        
+          message_text.value = '';
+        }       
+      }                                    
+
+      socket.onmessage = function(event) {
+        //console.log(event.data);
+        msg = JSON.parse(event.data);
+        let tr = document.createElement('tr');
+        let msgTd = document.createElement('td');
+        let timeTd = document.createElement('td');
+        
+        msgTd.innerHTML = msg.message;
+        timeTd.innerHTML = msg.time;
+        tr.append(timeTd);        
+        tr.append(msgTd);
+        
+        document.getElementById('messages').prepend(tr);        
+      }
+      
+    </script>
+  </body>
+</html>
